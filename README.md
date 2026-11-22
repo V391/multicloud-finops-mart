@@ -2,6 +2,8 @@
 
 **Raw cloud bills in. Cost tables that tie back to the bill to the cent, a savings case, and 4 cost alerts out, where the usual rules raise 30 or more.**
 
+![Raw cloud bills to cost tables to findings](docs/overview.png)
+
 | | |
 |---|---|
 | **Problem** | FinOps numbers are only useful if they match the bill, and the usual cost alerts fire so often that people stop reading them. |
@@ -16,22 +18,7 @@
 2. **4 alerts instead of 30.** On the same days, a fixed daily limit fired 30 times and a "+50% since yesterday" rule 37 times. The forecast check fired 4 times, including CloudWatch at $21.03 on a day forecast at $0.20.
 3. **The savings case: dev machines running at night.** 81% of AWS spend is tagged `dev`, and 63% of dev EC2 spend ($968 of $1,529) ran outside weekday working hours.
 
-![Alerts raised by each rule on the same days](docs/alerts_compared.png)
-
-## Architecture
-
-```mermaid
-flowchart TD
-    A["<b>Raw cloud bills</b><br/>AWS, Azure, Oracle, GCP"] --> B["<b>Clean</b><br/>types, casing, empty tags"]
-    B --> C["<b>Standardize tags</b><br/>82 tag keys to env, owner, app"]
-    C --> D["<b>Daily cost table</b><br/>day x account x service x tags"]
-    D --> E["<b>Reconcile</b><br/>matches the bill to the cent"]
-    D --> F["<b>Cost alerts</b><br/>forecast, not fixed limits"]
-    D --> G["<b>Untagged spend</b><br/>cost with no owner"]
-    E --> H["<b>Findings</b><br/>every number in this README"]
-    F --> H
-    G --> H
-```
+## How it is built
 
 <details>
 <summary>Which dbt model does each step</summary>
@@ -82,6 +69,8 @@ Each day is compared with a forecast built from the previous 7 daily changes (me
 
 The static limit is 1.5x each service's first-week average, the way a budget alert is often set at the start of a month. EC2 then grew from $13.80/day in the first week to $115.85/day in the last, so the static rule fired on 21 of 23 days. After the second day nobody reads those alerts. The forecast flagged one EC2 day (Sep 9, $29.94 against $14.73 expected) and otherwise followed the ramp.
 
+![Alerts raised by each rule on the same days](docs/alerts_compared.png)
+
 The flags worth a look:
 
 | Day | Service | Actual | Forecast | Over the band by |
@@ -122,6 +111,8 @@ That loads the raw file, runs `dbt seed`, `dbt run`, `dbt test`, the anomaly che
 ```bash
 python -m pytest pytests -q
 ```
+
+The overview diagram is drawn by `python scripts/draw_overview.py`.
 
 Outputs: `warehouse.duckdb` (all models), `outputs/findings.json`, `outputs/anomalies.csv`, `outputs/rule_comparison.csv`, `docs/alerts_compared.png`, `docs/anomaly_check.png`.
 
