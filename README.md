@@ -21,14 +21,16 @@
 ## Architecture
 
 ```mermaid
-flowchart LR
-    A["Raw cloud bills<br/>FOCUS format<br/>AWS, Azure, Oracle, GCP"] --> B["Clean<br/>fix types, case,<br/>'NULL' tags"]
-    B --> C["Standardize tags<br/>82 raw keys mapped to<br/>env, owner, app"]
-    C --> D["Daily cost table<br/>one row per day, account,<br/>service, region, tags"]
-    D --> E["Reconcile<br/>ties back to the<br/>raw bill to the cent"]
-    D --> F["Cost alerts<br/>forecast band<br/>vs fixed limits"]
-    D --> G["Attribution gaps<br/>spend with no<br/>owner or env"]
-    E & F & G --> H["Findings<br/>every number<br/>in this README"]
+flowchart TD
+    A["<b>Raw cloud bills</b><br/>AWS, Azure, Oracle, GCP"] --> B["<b>Clean</b><br/>types, casing, empty tags"]
+    B --> C["<b>Standardize tags</b><br/>82 tag keys to env, owner, app"]
+    C --> D["<b>Daily cost table</b><br/>day x account x service x tags"]
+    D --> E["<b>Reconcile</b><br/>matches the bill to the cent"]
+    D --> F["<b>Cost alerts</b><br/>forecast, not fixed limits"]
+    D --> G["<b>Untagged spend</b><br/>cost with no owner"]
+    E --> H["<b>Findings</b><br/>every number in this README"]
+    F --> H
+    G --> H
 ```
 
 <details>
