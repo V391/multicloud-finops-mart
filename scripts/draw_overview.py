@@ -1,4 +1,4 @@
-"""Draw the overview diagram at the top of the README (docs/overview.png).
+"""Draw the overview diagram at the top of the README (docs/architecture.png).
 
 Top row: how the data is built. Bottom row: the three checks run on it, each with what it found.
 """
@@ -71,7 +71,7 @@ def main() -> None:
         arrow(ax, (cx, bus_y), (cx, by + bh + 0.05))
 
     fig.tight_layout(pad=0.2)
-    fig.savefig(DOCS / "overview.png", facecolor="white")
+    fig.savefig(DOCS / "architecture.png", facecolor="white")
     plt.close(fig)
 
 

@@ -2,7 +2,7 @@
 
 **Raw cloud bills in. Cost tables that tie back to the bill to the cent, a savings case, and 4 cost alerts out, where the usual rules raise 30 or more.**
 
-![Raw cloud bills to cost tables to findings](docs/overview.png)
+![How it is built and what it found](docs/architecture.png)
 
 | | |
 |---|---|
