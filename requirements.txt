@@ -1,0 +1,8 @@
+dbt-core>=1.9,<1.10
+dbt-duckdb>=1.9
+duckdb>=1.1
+pandas>=2.2
+numpy>=2.0
+scipy>=1.13
+matplotlib>=3.9
+pytest>=8.0

@@ -1,0 +1,62 @@
+version: 2
+
+models:
+  - name: stg_focus__charges
+    description: One row per FOCUS charge, typed, with mixed-case enums lowercased and 'NULL' tag strings set to null.
+    columns:
+      - name: charge_id
+        tests: [not_null, unique]
+      - name: provider
+        tests: [not_null]
+      - name: charge_date
+        tests: [not_null]
+      - name: billed_cost
+        tests: [not_null]
+      - name: charge_category
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['usage', 'credit', 'adjustment', 'tax', 'purchase']
+      - name: billing_currency
+        description: 4 rows in the sample have no currency; all others are USD.
+        tests:
+          - accepted_values:
+              values: ['USD']
+
+  - name: int_charge_tags
+    description: Canonical environment / owner / application per charge, resolved through the tag_key_map seed.
+    columns:
+      - name: charge_id
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              to: ref('stg_focus__charges')
+              field: charge_id
+
+  - name: fct_daily_cost
+    description: Daily cost fact at day x provider x account x service x region x category x canonical tags.
+    columns:
+      - name: daily_cost_key
+        tests: [not_null, unique]
+      - name: charge_count
+        tests: [not_null]
+
+  - name: mart_daily_usage
+    description: Usage cost per day, provider and service on a complete date spine. Input to the anomaly check.
+    columns:
+      - name: usage_cost
+        tests: [not_null]
+
+  - name: mart_tag_coverage
+    description: Usage cost that cannot be assigned to an owner or environment, by provider and service.
+
+  - name: mart_reconciliation
+    description: Mart totals against the raw source per provider and charge category.
+
+seeds:
+  - name: tag_key_map
+    description: Maps raw tag keys (lowercased, trimmed) to canonical tags. Rows marked "assumption" are judgment calls, listed in the README.
+    columns:
+      - name: raw_key
+        tests: [not_null, unique]

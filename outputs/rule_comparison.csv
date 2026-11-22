@@ -1,0 +1,6 @@
+service_name,days_scored,month_usage,forecast_flags,static_limit,static_flags,day_over_day_flags
+Amazon Elastic Compute Cloud,23,1757.01,1,20.7,21,7
+AmazonCloudWatch,23,34.62,2,0.6,5,7
+Amazon Relational Database Service,23,73.72,0,3.96,3,7
+Elastic Load Balancing,23,18.19,1,0.84,1,5
+Amazon Simple Storage Service,23,7.01,0,1.0,0,11

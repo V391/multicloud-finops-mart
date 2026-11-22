@@ -1,0 +1,174 @@
+{
+  "reconciliation": {
+    "source_rows": 100000,
+    "mart_rows": 100000,
+    "max_abs_billed_diff": 0.0,
+    "max_abs_effective_diff": 0.0
+  },
+  "effective_cost_check": {
+    "aws_usage_billed": 2027.75,
+    "aws_usage_effective": 1493.32,
+    "aws_rows_nonzero_effective": 821,
+    "aws_rows_nonzero_effective_whole_dollars": 814,
+    "aws_rows_nonzero_billed": 62064,
+    "aws_rows_nonzero_billed_whole_dollars": 29
+  },
+  "credits": {
+    "aws_credits": -1196.45,
+    "aws_usage": 2027.75,
+    "credits_share_of_usage": 0.59,
+    "aws_days_negative_net": 6,
+    "aws_days": 30
+  },
+  "run_rate": {
+    "aws_usage_first7_avg": 22.4,
+    "aws_usage_last7_avg": 126.93,
+    "aws_growth_multiple": 5.67,
+    "ec2_share_of_aws_usage": 0.8665,
+    "ec2_first7_avg": 13.8,
+    "ec2_last7_avg": 115.85
+  },
+  "environment": {
+    "dev": {
+      "cost": 1640.54,
+      "share": 0.809
+    },
+    "prod": {
+      "cost": 240.38,
+      "share": 0.1185
+    },
+    "(untagged)": {
+      "cost": 146.82,
+      "share": 0.0724
+    }
+  },
+  "dev_schedule": {
+    "dev_ec2_cost": 1529.32,
+    "dev_ec2_off_hours_cost": 968.45,
+    "off_hours_share": 0.6333,
+    "window": "Mon-Fri 08:00-20:00 UTC"
+  },
+  "commitment": {
+    "ec2_on_demand_cost": 1755.88,
+    "ec2_cost": 1757.01,
+    "ec2_on_demand_share": 0.9994,
+    "ec2_min_daily": 9.56,
+    "ec2_floor_month": 286.82,
+    "ec2_floor_share": 0.1632
+  },
+  "attribution": {
+    "aws_usage": 2027.75,
+    "aws_no_owner": 146.82,
+    "aws_no_owner_share": 0.0724,
+    "aws_no_environment": 146.82,
+    "aws_no_environment_share": 0.0724,
+    "top_no_owner_services": [
+      {
+        "service": "Amazon Elastic Compute Cloud",
+        "no_owner_cost": 41.22
+      },
+      {
+        "service": "Datadog",
+        "no_owner_cost": 40.98
+      },
+      {
+        "service": "Amazon Virtual Private Cloud",
+        "no_owner_cost": 13.11
+      }
+    ],
+    "distinct_raw_tag_keys": 82
+  },
+  "anomaly": {
+    "rule_comparison": [
+      {
+        "service_name": "Amazon Elastic Compute Cloud",
+        "days_scored": 23,
+        "month_usage": 1757.01,
+        "forecast_flags": 1,
+        "static_limit": 20.7,
+        "static_flags": 21,
+        "day_over_day_flags": 7
+      },
+      {
+        "service_name": "AmazonCloudWatch",
+        "days_scored": 23,
+        "month_usage": 34.62,
+        "forecast_flags": 2,
+        "static_limit": 0.6,
+        "static_flags": 5,
+        "day_over_day_flags": 7
+      },
+      {
+        "service_name": "Amazon Relational Database Service",
+        "days_scored": 23,
+        "month_usage": 73.72,
+        "forecast_flags": 0,
+        "static_limit": 3.96,
+        "static_flags": 3,
+        "day_over_day_flags": 7
+      },
+      {
+        "service_name": "Elastic Load Balancing",
+        "days_scored": 23,
+        "month_usage": 18.19,
+        "forecast_flags": 1,
+        "static_limit": 0.84,
+        "static_flags": 1,
+        "day_over_day_flags": 5
+      },
+      {
+        "service_name": "Amazon Simple Storage Service",
+        "days_scored": 23,
+        "month_usage": 7.01,
+        "forecast_flags": 0,
+        "static_limit": 1.0,
+        "static_flags": 0,
+        "day_over_day_flags": 11
+      }
+    ],
+    "flags": [
+      {
+        "charge_date": "2024-09-09",
+        "service_name": "Amazon Elastic Compute Cloud",
+        "actual": 29.94,
+        "expected": 14.73,
+        "upper": 25.62,
+        "direction": "high",
+        "excess": 4.32
+      },
+      {
+        "charge_date": "2024-09-21",
+        "service_name": "AmazonCloudWatch",
+        "actual": 2.81,
+        "expected": 0.32,
+        "upper": 1.15,
+        "direction": "high",
+        "excess": 1.66
+      },
+      {
+        "charge_date": "2024-09-26",
+        "service_name": "AmazonCloudWatch",
+        "actual": 21.03,
+        "expected": 0.2,
+        "upper": 0.91,
+        "direction": "high",
+        "excess": 20.12
+      },
+      {
+        "charge_date": "2024-09-11",
+        "service_name": "Elastic Load Balancing",
+        "actual": 3.27,
+        "expected": 0.66,
+        "upper": 2.03,
+        "direction": "high",
+        "excess": 1.24
+      }
+    ],
+    "totals": {
+      "forecast": 4,
+      "static": 30,
+      "day_over_day": 37,
+      "days_scored": 115
+    }
+  }
+}

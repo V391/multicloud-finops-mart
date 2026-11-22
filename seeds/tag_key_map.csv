@@ -1,0 +1,12 @@
+raw_key,canonical_key,priority,note
+environment,environment,1,standard key
+env,environment,2,short form
+business_unit,owner,1,standard key
+costcenter,owner,2,finance-style key
+cost department,owner,3,finance-style key
+department,owner,4,finance-style key
+ms:department,owner,5,Azure-managed key
+org,owner,6,assumption: org is used as the owning team
+application,application,1,standard key
+project,application,2,assumption: project names the workload
+service,application,3,assumption: service names the workload

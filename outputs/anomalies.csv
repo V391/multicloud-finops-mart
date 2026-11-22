@@ -1,0 +1,5 @@
+charge_date,service_name,actual,expected,lower,upper,is_anomaly,direction,excess
+2024-09-09,Amazon Elastic Compute Cloud,29.94,14.73,8.29,25.62,True,high,4.32
+2024-09-21,AmazonCloudWatch,2.81,0.32,0.0,1.15,True,high,1.66
+2024-09-26,AmazonCloudWatch,21.03,0.2,0.0,0.91,True,high,20.12
+2024-09-11,Elastic Load Balancing,3.27,0.66,0.0,2.03,True,high,1.24

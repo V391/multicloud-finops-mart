@@ -1,0 +1,7 @@
+finops_mart:
+  target: local
+  outputs:
+    local:
+      type: duckdb
+      path: warehouse.duckdb
+      threads: 4

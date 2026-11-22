@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: focus
+    schema: raw
+    description: >
+      FOCUS 1.0 sample billing data from the FinOps Foundation (anonymized real
+      billing, CC BY 4.0). One row per charge. Loaded unchanged by scripts/load_raw.py.
+    tables:
+      - name: focus_charges
+        columns:
+          - name: Id
+            tests: [not_null, unique]
