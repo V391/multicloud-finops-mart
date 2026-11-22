@@ -1,41 +1,53 @@
-# Multi-cloud FinOps mart with statistical anomaly detection
+# Multi-cloud FinOps cost mart
 
-## What this is
+**Raw cloud bills in. Cost tables that tie back to the bill to the cent, a savings case, and 4 cost alerts out, where the usual rules raise 30 or more.**
 
-A dbt pipeline that turns raw cloud billing data into reconciled cost marts, plus an anomaly check that compares each day against a forecast instead of a fixed dollar limit. It runs on the FinOps Foundation's public [FOCUS 1.0 sample](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS-Sample-Data): 100,000 rows of anonymized real billing across AWS, Azure, Oracle and Google Cloud for September 2024.
+| | |
+|---|---|
+| **Problem** | FinOps numbers are only useful if they match the bill, and the usual cost alerts fire so often that people stop reading them. |
+| **What I built** | A dbt pipeline that cleans and reconciles raw billing data, plus an alert check that compares each day with a forecast instead of a fixed dollar limit. |
+| **Data** | The FinOps Foundation's public [FOCUS 1.0 sample](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS-Sample-Data): 100,000 rows of anonymized real billing (AWS, Azure, Oracle, GCP), Sep 2024. |
+| **Stack** | dbt, SQL, DuckDB (runs on a laptop, no cloud account), Python. 21 dbt tests and 10 unit tests, all passing. |
+| **Run it** | `pip install -r requirements.txt` then `python scripts/run_pipeline.py` |
 
-I built it to answer one question first: can every downstream FinOps number be trusted? So the mart ties back to the raw file to the cent before anything else is computed on it.
+## What it found
 
-**Main results (from the run in this repo):**
+1. **The numbers tie out.** 100,000 rows in, 100,000 out, $0.00 difference from the bill. A test stops the build if that ever breaks.
+2. **4 alerts instead of 30.** On the same days, a fixed daily limit fired 30 times and a "+50% since yesterday" rule 37 times. The forecast check fired 4 times, including CloudWatch at $21.03 on a day forecast at $0.20.
+3. **The savings case: dev machines running at night.** 81% of AWS spend is tagged `dev`, and 63% of dev EC2 spend ($968 of $1,529) ran outside weekday working hours.
 
-- **The mart reconciles exactly.** 100,000 source rows in, 100,000 out; billed cost differs from the source by $0.00 for every provider and charge category. A dbt test fails the build if that ever breaks.
-- **The forecast check raised 4 alerts where the usual rules raised 30 and 37**, across the same 115 service-days. The biggest was CloudWatch on Sep 26: $21.03 against a forecast of $0.20.
-- **81% of AWS usage cost is tagged `dev`, and 63% of dev EC2 cost ($968 of $1,529) ran outside weekday working hours.** That is the first savings case in this data.
-
-![Anomaly check on EC2 and CloudWatch](docs/anomaly_check.png)
+![Alerts raised by each rule on the same days](docs/alerts_compared.png)
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    A["FOCUS billing export<br/>(AWS, Azure, Oracle, GCP)"] --> B["raw.focus_charges<br/>loaded unchanged"]
-    B --> C["stg_focus__charges<br/>typed, enums lowercased,<br/>'NULL' tags set to null"]
-    S["seed: tag_key_map<br/>82 raw keys to 3 tags"] --> D
-    C --> D["int_charge_tags<br/>environment, owner, application"]
-    C --> E["fct_daily_cost<br/>day x provider x account x service<br/>x region x category x tags"]
-    D --> E
-    E --> F["mart_daily_usage<br/>usage only, full date spine"]
-    E --> G["mart_tag_coverage<br/>cost with no owner or environment"]
-    E --> H["mart_reconciliation<br/>mart vs raw, every measure"]
-    B --> H
-    F --> I["anomaly check (Python)<br/>forecast band vs static and<br/>day-over-day rules"]
-    E --> J["findings.json<br/>every number in this README"]
-    I --> J
+    A["Raw cloud bills<br/>FOCUS format<br/>AWS, Azure, Oracle, GCP"] --> B["Clean<br/>fix types, case,<br/>'NULL' tags"]
+    B --> C["Standardize tags<br/>82 raw keys mapped to<br/>env, owner, app"]
+    C --> D["Daily cost table<br/>one row per day, account,<br/>service, region, tags"]
+    D --> E["Reconcile<br/>ties back to the<br/>raw bill to the cent"]
+    D --> F["Cost alerts<br/>forecast band<br/>vs fixed limits"]
+    D --> G["Attribution gaps<br/>spend with no<br/>owner or env"]
+    E & F & G --> H["Findings<br/>every number<br/>in this README"]
 ```
 
-Tests: 21 dbt data tests (keys, nulls, accepted values, relationships, reconciliation, date spine totals) and 10 Python unit tests on the anomaly logic. All pass.
+<details>
+<summary>Which dbt model does each step</summary>
 
-## Findings
+| Step | Model | Grain / job |
+|---|---|---|
+| Raw | `raw.focus_charges` | The sample file, loaded unchanged by `scripts/load_raw.py` |
+| Clean | `stg_focus__charges` | One row per charge, typed, enums lowercased, `'NULL'` tag strings set to null |
+| Standardize tags | `int_charge_tags` + seed `tag_key_map` | One row per tagged charge: environment, owner, application |
+| Daily cost table | `fct_daily_cost` | Day x provider x account x service x region x charge type x tags |
+| Reconcile | `mart_reconciliation` + 2 singular tests | Mart vs raw per provider and charge type, rows and every cost measure |
+| Cost alerts | `mart_daily_usage` + `finops/anomaly.py` | Usage per day and service on a full date spine, scored by the forecast check |
+| Attribution gaps | `mart_tag_coverage` | Usage cost with no owner or environment, per provider and service |
+| Findings | `scripts/findings.py` | Writes `outputs/findings.json` |
+
+</details>
+
+## Findings in detail
 
 All figures are from `outputs/findings.json`, written by `scripts/findings.py`. They describe this 100,000-row sample only, so the dollar amounts are small; the shapes are what matter.
 
@@ -77,6 +89,8 @@ The flags worth a look:
 | Sep 21 | CloudWatch | $2.81 | $0.32 | $1.66 |
 | Sep 11 | Elastic Load Balancing | $3.27 | $0.66 | $1.24 |
 
+![Forecast band on EC2 and CloudWatch](docs/anomaly_check.png)
+
 One limit to be clear about: daily EC2 totals in this sample swing about 2x from day to day, so the EC2 band is wide (see the chart). Scoring per account or per instance family, where each series is steadier, would tighten it. I have not done that here.
 
 ### 3. Where the savings are
@@ -107,7 +121,7 @@ That loads the raw file, runs `dbt seed`, `dbt run`, `dbt test`, the anomaly che
 python -m pytest pytests -q
 ```
 
-Outputs: `warehouse.duckdb` (all models), `outputs/findings.json`, `outputs/anomalies.csv`, `outputs/rule_comparison.csv`, `docs/anomaly_check.png`.
+Outputs: `warehouse.duckdb` (all models), `outputs/findings.json`, `outputs/anomalies.csv`, `outputs/rule_comparison.csv`, `docs/alerts_compared.png`, `docs/anomaly_check.png`.
 
 ## What I cut, and what I assumed
 

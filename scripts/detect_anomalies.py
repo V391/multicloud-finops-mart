@@ -73,6 +73,7 @@ def main() -> None:
         ("EC2", *plotted["Amazon Elastic Compute Cloud"]),
         ("CloudWatch", *plotted["AmazonCloudWatch"]),
     ])
+    plot_alert_counts(comparison)
     anomalies = pd.concat(flagged, ignore_index=True)
     anomalies.round(2).to_csv(OUT / "anomalies.csv", index=False)
     comp = pd.DataFrame(comparison)
@@ -87,6 +88,32 @@ def main() -> None:
     print("\nFlagged days:")
     print(anomalies[["charge_date", "service_name", "actual", "expected", "upper", "direction", "excess"]]
           .round(2).to_string(index=False))
+
+
+def plot_alert_counts(comparison) -> None:
+    """One glanceable bar chart: how many alerts each rule raised on the same days."""
+    comp = pd.DataFrame(comparison)
+    days = int(comp.days_scored.sum())
+    rules = [
+        ("Fixed daily limit", int(comp.static_flags.sum()), "#D97757"),
+        ("Day-over-day +50%", int(comp.day_over_day_flags.sum()), "#D97757"),
+        ("Forecast band (this repo)", int(comp.forecast_flags.sum()), "#249361"),
+    ]
+    fig, ax = plt.subplots(figsize=(8, 2.6), dpi=150)
+    names = [r[0] for r in rules]
+    vals = [r[1] for r in rules]
+    bars = ax.barh(names, vals, color=[r[2] for r in rules], height=0.6)
+    for b, v in zip(bars, vals):
+        ax.text(b.get_width() + 0.6, b.get_y() + b.get_height() / 2, f"{v} alerts", va="center", fontsize=10)
+    ax.invert_yaxis()
+    ax.set_xlim(0, max(vals) * 1.25)
+    ax.set_xticks([])
+    ax.spines[["top", "right", "bottom"]].set_visible(False)
+    ax.tick_params(axis="y", labelsize=10, length=0)
+    ax.set_title(f"Cost alerts raised on the same {days} service-days (AWS, Sep 2024)", loc="left", fontsize=11)
+    fig.tight_layout()
+    fig.savefig(DOCS / "alerts_compared.png")
+    plt.close(fig)
 
 
 def plot_panels(panels) -> None:
